@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Multi-Disease Risk Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+        position: relative;
+    }
+
+    .hero-content {
+        max-width: 900px;
+        animation: fadeIn 1s ease;
+    }
+
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 2rem;
+        font-weight: 400;
+    }
+
+    .hero-description {
+        font-size: 1.125rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 3rem;
+        line-height: 1.8;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .feature-section {
+        background: white;
+        padding: 5rem 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .feature-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        padding: 2.5rem;
+        border-radius: var(--radius-xl);
+        color: white;
+        text-align: center;
+        transition: transform 0.3s ease;
+        box-shadow: var(--shadow -lg);
+    }
+
+    .feature-card:nth-child(2) {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .feature-card:nth-child(3) {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .feature-card:nth-child(4) {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .feature-description {
+        color: rgba(255, 255, 255, 0.95);
+        line-height: 1.6;
+    }
+
+    .stats-section {
+        background: var(--primary-gradient);
+        padding: 4rem 0;
+        color: white;
+        text-align: center;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+
+    .stat-item {
+        padding: 1.5rem;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 1.125rem;
+        opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Multi-Disease Risk Analytics Platform</h1>
+        <p class="hero-subtitle">AI-Powered Health Predictions Across 15 Major Diseases</p>
+        <p class="hero-description">
+            Advanced machine learning models trained on authentic Kaggle medical datasets
+            delivering instant, accurate risk assessments with comprehensive PDF reports
+            and visual analytics. Average accuracy: <strong>92.29%</strong>
+        </p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-lg"
+                style="border-color: white; color: white;">Sign In</a>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <h2 style="color: white; margin-bottom: 1rem;">Platform Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-item slide-up">
+                <div class="stat-number">15</div>
+                <div class="stat-label">Disease Models</div>
+            </div>
+            <div class="stat-item slide-up" style="animation-delay: 0.1s;">
+                <div class="stat-number">92.29%</div>
+                <div class="stat-label">Average Accuracy</div>
+            </div>
+            <div class="stat-item slide-up" style="animation-delay: 0.2s;">
+                <div class="stat-number">6+</div>
+                <div class="stat-label">Models >95% Accuracy</div>
+            </div>
+            <div class="stat-item slide-up" style="animation-delay: 0.3s;">
+                <div class="stat-number">&lt;1s</div>
+                <div class="stat-label">Prediction Time</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="feature-section">
+    <div class="container">
+        <h2 class="text-center" style="font-size: 2.5rem;">Powerful Features</h2>
+        <p class="text-center text-secondary" style="font-size: 1.125rem; margin-bottom: 3rem;">
+            Everything you need for comprehensive disease risk assessment
+        </p>
+
+        <div class="feature-grid">
+            <div class="feature-card slide-up">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">Advanced ML Models</h3>
+                <p class="feature-description">
+                    Ensemble methods including XGBoost, Random Forest, SVM, and Logistic Regression
+                    optimized through hyperparameter tuning for maximum accuracy.
+                </p>
+            </div>
+
+            <div class="feature-card slide-up" style="animation-delay: 0.1s;">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Visual Analytics</h3>
+                <p class="feature-description">
+                    Comprehensive dashboards with interactive charts showing prediction history,
+                    risk trends, and disease comparisons over time.
+                </p>
+            </div>
+
+            <div class="feature-card slide-up" style="animation-delay: 0.2s;">
+                <div class="feature-icon">📄</div>
+                <h3 class="feature-title">PDF Reports</h3>
+                <p class="feature-description">
+                    Professional, detailed PDF reports with risk visualizations, input parameters,
+                    and personalized recommendations for each prediction.
+                </p>
+            </div>
+
+            <div class="feature-card slide-up" style="animation-delay: 0.3s;">
+                <div class="feature-icon">🔒</div>
+                <h3 class="feature-title">Secure & Private</h3>
+                <p class="feature-description">
+                    Enterprise-grade security with encrypted data storage, secure authentication,
+                    and complete privacy protection for all health information.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Supported Diseases Section -->
+<section class="feature-section" style="background: var(--bg-light);">
+    <div class="container">
+        <h2 class="text-center" style="font-size: 2.5rem;">15 Disease Predictions</h2>
+        <p class="text-center text-secondary" style="font-size: 1.125rem; margin-bottom: 3rem;">
+            Comprehensive risk assessment across multiple critical health conditions
+        </p>
+
+        <div class="grid grid-3">
+            <div class="card slide-up">
+                <h4>🩺 Metabolic Diseases</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0;">✓ Diabetes</li>
+                    <li style="padding: 0.5rem 0;">✓ Thyroid Disease</li>
+                    <li style="padding: 0.5rem 0;">✓ Liver Disease</li>
+                </ul>
+            </div>
+
+            <div class="card slide-up" style="animation-delay: 0.1s;">
+                <h4>❤️ Cardiovascular</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0;">✓ Heart Disease</li>
+                    <li style="padding: 0.5rem 0;">✓ Stroke</li>
+                    <li style="padding: 0.5rem 0;">✓ Anemia</li>
+                </ul>
+            </div>
+
+            <div class="card slide-up" style="animation-delay: 0.2s;">
+                <h4>🫁 Respiratory</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0;">✓ Pneumonia</li>
+                    <li style="padding: 0.5rem 0;">✓ Tuberculosis</li>
+                    <li style="padding: 0.5rem 0;">✓ COVID-19</li>
+                </ul>
+            </div>
+
+            <div class="card slide-up" style="animation-delay: 0.3s;">
+                <h4>🧠 Neurological</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0;">✓ Parkinson's Disease</li>
+                    <li style="padding: 0.5rem 0;">✓ Alzheimer's Disease</li>
+                </ul>
+            </div>
+
+            <div class="card slide-up" style="animation-delay: 0.4s;">
+                <h4>🎗️ Cancer Detection</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0;">✓ Breast Cancer</li>
+                    <li style="padding: 0.5rem 0;">✓ Lung Cancer</li>
+                    <li style="padding: 0.5rem 0;">✓ Melanoma</li>
+                </ul>
+            </div>
+
+            <div class="card slide-up" style="animation-delay: 0.5s;">
+                <h4>🔬 Other Conditions</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0;">✓ Kidney Disease</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="stats-section" style="background: var(--secondary-gradient);">
+    <div class="container">
+        <h2 style="color: white; font-size: 2.5rem; margin-bottom: 1rem;">
+            Ready to Get Started?
+        </h2>
+        <p style="color: rgba(255, 255, 255, 0.95); font-size: 1.25rem; margin-bottom: 2rem;">
+            Join thousands of users taking control of their health with AI-powered predictions
+        </p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-lg"
+            style="background: white; color: var(--secondary-color);">
+            Create Free Account
+        </a>
+    </div>
+</section>
+{% endblock %}

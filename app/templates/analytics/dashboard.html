@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-container {
+        padding: 3rem 0;
+        min-height: 100vh;
+    }
+
+    .analytics-header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: var(--radius-xl);
+        text-align: center;
+        margin-bottom: 3rem;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .chart-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+    }
+
+    @media (max-width: 768px) {
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container container">
+    <!-- Header -->
+    <div class="analytics-header fade-in">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: white;">
+            📈 Analytics Dashboard
+        </h1>
+        <p style="font-size: 1.125rem; margin: 0; opacity: 0.95;">
+            Comprehensive insights into your health prediction patterns
+        </p>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="chart-grid">
+        <!-- Risk Distribution Chart -->
+        <div class="chart-card slide-up">
+            <h3 class="chart-title">Risk Level Distribution</h3>
+            <canvas id="riskChart"></canvas>
+        </div>
+
+        <!-- Disease Distribution Chart -->
+        <div class="chart-card slide-up" style="animation-delay: 0.1s;">
+            <h3 class="chart-title">Predictions by Disease</h3>
+            <canvas id="diseaseChart"></canvas>
+        </div>
+
+        <!-- Trends Chart -->
+        <div class="chart-card slide-up" style="animation-delay: 0.2s; grid-column: 1 / -1;">
+            <h3 class="chart-title">Prediction Trends Over Time</h3>
+            <canvas id="trendsChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Configure Chart.js defaults
+    Chart.defaults.font.family = 'Inter, sans-serif';
+    Chart.defaults.color = '#2C3E50';
+
+    // Fetch analytics data
+    async function loadAnalytics() {
+        try {
+            // Overview data
+            const overviewResponse = await fetch('{{ url_for("analytics.api_overview") }}');
+            const overview = await overviewResponse.json();
+
+            // Trends data
+            const trendsResponse = await fetch('{{ url_for("analytics.api_trends") }}');
+            const trends = await trendsResponse.json();
+
+            // Create charts
+            createRiskChart(overview.risk_distribution);
+            createDiseaseChart(overview.disease_distribution);
+            createTrendsChart(trends);
+
+        } catch (error) {
+            console.error('Error loading analytics:', error);
+        }
+    }
+
+    // Risk Distribution Doughnut Chart
+    function createRiskChart(data) {
+        const ctx = document.getElementById('riskChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+                datasets: [{
+                    data: [data.Low || 0, data.Medium || 0, data.High || 0],
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#FF9800',
+                        '#F44336'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Disease Distribution Bar Chart
+    function createDiseaseChart(data) {
+        const ctx = document.getElementById('diseaseChart').getContext('2d');
+        const labels = Object.keys(data);
+        const values = Object.values(data);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Number of Predictions',
+                    data: values,
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+
+    // Trends Line Chart
+    function createTrendsChart(data) {
+        const ctx = document.getElementById('trendsChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Predictions per Month',
+                    data: data.data,
+                    fill: true,
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    }
+
+    // Load analytics on page load
+    document.addEventListener('DOMContentLoaded', loadAnalytics);
+</script>
+{% endblock %}

@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Database
+*.db
+*.sqlite3
+instance/
+
+# ML Models (generated at runtime)
+app/ml_models/*.pkl
+
+# Reports (generated PDFs)
+app/reports/*.pdf
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment
+.env
+*.env
+
+# Gemini/Agent
+.gemini/
+.agent/
+.artifacts/
+
+# Logs
+*.log
+
+# Byte-compiled
+*.pyc

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - {{ current_user.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        padding: 3rem 0;
+        min-height: 100vh;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 3rem;
+        box-shadow: var(--shadow-lg);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .profile-header {
+        text-align: center;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid var(--bg-light);
+        margin-bottom: 2rem;
+    }
+
+    .avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: white;
+        margin: 0 auto 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container container">
+    <div class="profile-card fade-in">
+        <div class="profile-header">
+            <div class="avatar">{{ current_user.username[0].upper() }}</div>
+            <h1 style="margin-bottom: 0.5rem;">{{ current_user.full_name or current_user.username }}</h1>
+            <p style="color: var(--text-light); margin: 0;">@{{ current_user.username }}</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.update_profile') }}">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" name="full_name" value="{{ current_user.full_name or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" value="{{ current_user.email }}" required>
+            </div>
+
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Age</label>
+                    <input type="number" class="form-control" name="age" value="{{ current_user.age or '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    <select class="form-control" name="gender">
+                        <option value="">Select</option>
+                        <option value="Male" {% if current_user.gender=='Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if current_user.gender=='Female' %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if current_user.gender=='Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input type="tel" class="form-control" name="phone" value="{{ current_user.phone or '' }}">
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary btn-lg">Update Profile</button>
+            </div>
+        </form>
+
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--bg-light);">
+            <h3 style="margin-bottom: 1rem;">Account Statistics</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md);">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">{{
+                        current_user.get_prediction_count() }}</div>
+                    <div style="color: var(--text-light); font-size: 0.875rem;">Total Predictions</div>
+                </div>
+                <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md);">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--success-color);">{{
+                        current_user.created_at.strftime('%b %Y') }}</div>
+                    <div style="color: var(--text-light); font-size: 0.875rem;">Member Since</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

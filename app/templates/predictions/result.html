@@ -1,0 +1,662 @@
+{% extends "base.html" %}
+{% block title %}{{ prediction.disease_name }} - Risk Analysis Report{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-container {
+        padding: 2rem 0 4rem;
+        min-height: 100vh;
+    }
+
+    .verdict-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .verdict-top {
+        padding: 3rem 2rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .verdict-top.low {
+        background: linear-gradient(135deg, #059669, #10b981, #34d399);
+    }
+
+    .verdict-top.medium {
+        background: linear-gradient(135deg, #d97706, #f59e0b, #fbbf24);
+    }
+
+    .verdict-top.high {
+        background: linear-gradient(135deg, #dc2626, #ef4444, #f87171);
+    }
+
+    .verdict-icon {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 3rem;
+        animation: bounceIn 0.6s ease-out;
+    }
+
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0);
+        }
+
+        50% {
+            transform: scale(1.15);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .verdict-title {
+        color: white;
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .verdict-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .verdict-bottom {
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .verdict-disease {
+        font-size: 1.1rem;
+        color: #64748b;
+    }
+
+    .verdict-report {
+        font-size: 0.85rem;
+        color: #94a3b8;
+    }
+
+    .gauge-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .gauge-value {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-top: 0.5rem;
+    }
+
+    .gauge-value.low {
+        color: #059669;
+    }
+
+    .gauge-value.medium {
+        color: #d97706;
+    }
+
+    .gauge-value.high {
+        color: #dc2626;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.75rem;
+        text-align: center;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #94a3b8;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .stat-bar {
+        height: 6px;
+        border-radius: 3px;
+        background: #e2e8f0;
+        margin-top: 0.75rem;
+        overflow: hidden;
+    }
+
+    .stat-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 1.5s ease;
+    }
+
+    .meaning-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        margin-bottom: 2rem;
+    }
+
+    .meaning-card h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: #1e293b;
+    }
+
+    .meaning-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        align-items: flex-start;
+    }
+
+    .meaning-item.green {
+        background: #f0fdf4;
+        border-left: 4px solid #22c55e;
+    }
+
+    .meaning-item.orange {
+        background: #fff7ed;
+        border-left: 4px solid #f97316;
+    }
+
+    .meaning-item.red {
+        background: #fef2f2;
+        border-left: 4px solid #ef4444;
+    }
+
+    .meaning-item.blue {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .meaning-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .meaning-text h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: #1e293b;
+    }
+
+    .meaning-text p {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .next-steps {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        margin-bottom: 2rem;
+    }
+
+    .next-steps h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: #1e293b;
+    }
+
+    .step-item {
+        display: flex;
+        gap: 1.25rem;
+        padding: 1.25rem;
+        border-radius: 14px;
+        background: #f8fafc;
+        margin-bottom: 0.75rem;
+        align-items: center;
+        transition: all 0.3s;
+    }
+
+    .step-item:hover {
+        background: #f1f5f9;
+        transform: translateX(4px);
+    }
+
+    .step-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .step-number.green {
+        background: linear-gradient(135deg, #059669, #10b981);
+    }
+
+    .step-number.blue {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+    }
+
+    .step-number.purple {
+        background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+    }
+
+    .step-number.orange {
+        background: linear-gradient(135deg, #d97706, #f59e0b);
+    }
+
+    .step-content h4 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.15rem;
+    }
+
+    .step-content p {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin: 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 2rem 0;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.9rem 2rem;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .action-btn.primary {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        color: white;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+
+    .action-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+    }
+
+    .action-btn.secondary {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .action-btn.secondary:hover {
+        background: #e2e8f0;
+        transform: translateY(-2px);
+    }
+
+    .disclaimer {
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-radius: 16px;
+        padding: 1.75rem;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+    }
+
+    .disclaimer p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .disclaimer strong {
+        color: #475569;
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="result-container container">
+
+    <!-- MAIN VERDICT -->
+    <div class="verdict-card fade-in">
+        <div class="verdict-top {{ prediction.risk_level|lower if prediction.risk_level else 'low' }}">
+            <div class="verdict-icon">
+                {% if prediction.risk_level == 'Low' %}😊{% elif prediction.risk_level == 'Medium' %}😐{% else %}😟{%
+                endif %}
+            </div>
+            <div class="verdict-title">
+                {% if prediction.risk_level == 'Low' %}Good News! Low Risk Detected
+                {% elif prediction.risk_level == 'Medium' %}Moderate Risk — Worth Checking
+                {% else %}High Risk — Please See a Doctor{% endif %}
+            </div>
+            <div class="verdict-subtitle">
+                {% if prediction.risk_level == 'Low' %}Based on your symptoms and health data, our AI analysis shows a
+                <strong>low probability</strong> of {{ prediction.disease_name }}. Keep maintaining your healthy
+                lifestyle!
+                {% elif prediction.risk_level == 'Medium' %}Our AI detected <strong>some risk factors</strong> for {{
+                prediction.disease_name }}. We recommend getting a simple medical check-up to be safe.
+                {% else %}Our AI detected <strong>significant risk factors</strong> for {{ prediction.disease_name }}.
+                Please consult a doctor and get the recommended tests done.{% endif %}
+            </div>
+        </div>
+        <div class="verdict-bottom">
+            <div class="verdict-disease">{{ prediction.disease_name }} Risk Analysis</div>
+            <div class="verdict-report">Report ID: {{ prediction.report_id }} · {{ prediction.created_at.strftime('%B
+                %d, %Y at %I:%M %p') }}</div>
+        </div>
+    </div>
+
+    <!-- RISK SCORE -->
+    <div class="gauge-section slide-up">
+        <h3 style="font-size: 1.1rem; color: #64748b; font-weight: 600; margin-bottom: 1rem;">Your Risk Score</h3>
+        <div class="gauge-value {{ prediction.risk_level|lower if prediction.risk_level else 'low' }}">{{
+            "%.1f"|format(prediction.risk_percentage) }}%</div>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.5rem;">
+            {% if prediction.risk_percentage < 33 %}Your risk is below average — you're in a good zone! {% elif
+                prediction.risk_percentage < 66 %}Your risk is moderate — a check-up is recommended. {% else %}Your risk
+                is above average — please take action.{% endif %} </p>
+                <div
+                    style="max-width: 400px; margin: 1.5rem auto 0; height: 12px; border-radius: 6px; background: linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444); position: relative;">
+                    <div
+                        style="position: absolute; top: -6px; left: {{ prediction.risk_percentage }}%; width: 24px; height: 24px; background: white; border: 3px solid {{ prediction.get_risk_color() }}; border-radius: 50%; transform: translateX(-12px); box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; max-width: 400px; margin: 0.5rem auto 0;">
+                    <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">0% Low</span>
+                    <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">50% Medium</span>
+                    <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">100% High</span>
+                </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="stats-grid">
+        <div class="stat-card slide-up">
+            <div class="stat-label">Risk Level</div>
+            <div class="stat-value" style="color: {{ prediction.get_risk_color() }};">{{
+                "%.1f"|format(prediction.risk_percentage) }}%</div>
+            <div class="stat-bar">
+                <div class="stat-bar-fill"
+                    style="width: {{ prediction.risk_percentage }}%; background: {{ prediction.get_risk_color() }};">
+                </div>
+            </div>
+        </div>
+        <div class="stat-card slide-up" style="animation-delay: 0.1s;">
+            <div class="stat-label">AI Confidence</div>
+            <div class="stat-value" style="color: #3b82f6;">{{ "%.1f"|format(prediction.confidence_score) }}%</div>
+            <div class="stat-bar">
+                <div class="stat-bar-fill" style="width: {{ prediction.confidence_score }}%; background: #3b82f6;">
+                </div>
+            </div>
+        </div>
+        <div class="stat-card slide-up" style="animation-delay: 0.2s;">
+            <div class="stat-label">Model Accuracy</div>
+            <div class="stat-value" style="color: #059669;">{{ "%.1f"|format(prediction.model_accuracy) }}%</div>
+            <div class="stat-bar">
+                <div class="stat-bar-fill" style="width: {{ prediction.model_accuracy }}%; background: #059669;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WHAT THIS MEANS -->
+    <div class="meaning-card slide-up">
+        <h3>What Does This Mean?</h3>
+        {% if prediction.risk_level == 'Low' %}
+        <div class="meaning-item green">
+            <span class="meaning-icon">✅</span>
+            <div class="meaning-text">
+                <h4>Your symptoms don't strongly indicate {{ prediction.disease_name }}</h4>
+                <p>Based on the {{ prediction.get_input_features()|length }} health factors you provided, our AI found
+                    low correlation with {{ prediction.disease_name }} patterns. This is a good sign!</p>
+            </div>
+        </div>
+        <div class="meaning-item blue">
+            <span class="meaning-icon">📌</span>
+            <div class="meaning-text">
+                <h4>Keep monitoring your health</h4>
+                <p>Even with low risk, maintain regular health check-ups. Risk factors can change over time.</p>
+            </div>
+        </div>
+        {% elif prediction.risk_level == 'Medium' %}
+        <div class="meaning-item orange">
+            <span class="meaning-icon">⚡</span>
+            <div class="meaning-text">
+                <h4>Some of your symptoms match {{ prediction.disease_name }} patterns</h4>
+                <p>Our AI found a moderate correlation. This doesn't mean you have it — it means it's worth
+                    investigating with a simple test.</p>
+            </div>
+        </div>
+        <div class="meaning-item blue">
+            <span class="meaning-icon">🏥</span>
+            <div class="meaning-text">
+                <h4>A simple test can give you clarity</h4>
+                <p>Getting the recommended medical test will give you a definitive answer. Early detection leads to much
+                    better outcomes.</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="meaning-item red">
+            <span class="meaning-icon">⚠️</span>
+            <div class="meaning-text">
+                <h4>Multiple risk factors detected for {{ prediction.disease_name }}</h4>
+                <p>Your symptoms show strong correlation with {{ prediction.disease_name }} patterns. This is NOT a
+                    diagnosis, but a strong indication to get tested.</p>
+            </div>
+        </div>
+        <div class="meaning-item red">
+            <span class="meaning-icon">🏥</span>
+            <div class="meaning-text">
+                <h4>Please see a doctor as soon as possible</h4>
+                <p>Early detection can make a huge difference. The recommended tests are simple and affordable. Don't
+                    delay.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- WHAT TO DO NEXT -->
+    <div class="next-steps slide-up">
+        <h3>What Should You Do Next?</h3>
+        {% if prediction.risk_level == 'Low' %}
+        <div class="step-item">
+            <div class="step-number green">1</div>
+            <div class="step-content">
+                <h4>Continue Your Healthy Lifestyle</h4>
+                <p>Your current habits are working well. Keep exercising and eating balanced meals.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-number blue">2</div>
+            <div class="step-content">
+                <h4>Schedule a Routine Check-up</h4>
+                <p>Even with low risk, an annual health check-up helps catch any changes early.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-number purple">3</div>
+            <div class="step-content">
+                <h4>Recheck in 3-6 Months</h4>
+                <p>Come back and re-take this screening periodically to track your risk over time.</p>
+            </div>
+        </div>
+        {% elif prediction.risk_level == 'Medium' %}
+        <div class="step-item">
+            <div class="step-number orange">1</div>
+            <div class="step-content">
+                <h4>Get the Recommended Test</h4>
+                <p>{% if prediction.disease_type == 'diabetes' %}Fasting Blood Sugar and HbA1c Test — Cost: Rs.200-500{%
+                    elif prediction.disease_type == 'heart_disease' %}ECG and Lipid Profile — Cost: Rs.500-1500{% elif
+                    prediction.disease_type == 'kidney_disease' %}Kidney Function Test (KFT) — Cost: Rs.400-800{% elif
+                    prediction.disease_type == 'liver_disease' %}Liver Function Test (LFT) — Cost: Rs.400-800{% elif
+                    prediction.disease_type == 'breast_cancer' %}Mammography and Ultrasound — Cost: Rs.1000-3000{% elif
+                    prediction.disease_type == 'anemia' %}Complete Blood Count (CBC) — Cost: Rs.200-400{% elif
+                    prediction.disease_type == 'thyroid' %}Thyroid Profile (TSH, T3, T4) — Cost: Rs.300-600{% elif
+                    prediction.disease_type == 'tuberculosis' %}Sputum Test and Chest X-Ray — Cost: Rs.200-500{% elif
+                    prediction.disease_type == 'pneumonia' %}Chest X-Ray and Blood Test — Cost: Rs.500-1500{% elif
+                    prediction.disease_type == 'covid19' %}RT-PCR or Rapid Antigen Test — Cost: Rs.200-500{% elif
+                    prediction.disease_type == 'lung_cancer' %}Chest X-Ray and CT Scan — Cost: Rs.500-5000{% elif
+                    prediction.disease_type == 'stroke' %}CT Scan or MRI Brain — Cost: Rs.2000-8000{% elif
+                    prediction.disease_type == 'parkinsons' %}Consult a Neurologist for examination{% elif
+                    prediction.disease_type == 'alzheimers' %}Cognitive Assessment — Consult Neurologist{% elif
+                    prediction.disease_type == 'melanoma' %}Skin Biopsy — Consult Dermatologist{% else %}Consult your
+                    doctor for appropriate tests{% endif %}</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-number blue">2</div>
+            <div class="step-content">
+                <h4>Visit Your Nearest Clinic</h4>
+                <p>Share this report with your doctor. They can provide a proper diagnosis based on test results.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-number green">3</div>
+            <div class="step-content">
+                <h4>Improve Your Lifestyle</h4>
+                <p>Regular exercise, balanced diet, adequate sleep, and stress management can reduce your risk.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-number purple">4</div>
+            <div class="step-content">
+                <h4>Download and Share This Report</h4>
+                <p>Download the PDF report below and bring it to your doctor appointment.</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="step-item" style="background: #fef2f2;">
+            <div class="step-number" style="background: linear-gradient(135deg, #dc2626, #ef4444);">!</div>
+            <div class="step-content">
+                <h4 style="color: #dc2626;">See a Doctor Immediately</h4>
+                <p>{% if prediction.disease_type == 'diabetes' %}Get Fasting Blood Sugar and HbA1c Test done today
+                    (Rs.200-500){% elif prediction.disease_type == 'heart_disease' %}Get ECG and Lipid Profile done
+                    urgently (Rs.500-1500){% elif prediction.disease_type == 'kidney_disease' %}Get Kidney Function Test
+                    (KFT) done today (Rs.400-800){% elif prediction.disease_type == 'liver_disease' %}Get Liver Function
+                    Test (LFT) done today (Rs.400-800){% elif prediction.disease_type == 'breast_cancer' %}Schedule a
+                    Mammography immediately (Rs.1000-3000){% elif prediction.disease_type == 'anemia' %}Get Complete
+                    Blood Count (CBC) done today (Rs.200-400){% elif prediction.disease_type == 'stroke' %}Go to the
+                    nearest hospital emergency immediately{% elif prediction.disease_type == 'parkinsons' %}Schedule
+                    appointment with a Neurologist this week{% elif prediction.disease_type == 'thyroid' %}Get Thyroid
+                    Profile (TSH, T3, T4) done today (Rs.300-600){% elif prediction.disease_type == 'covid19' %}Get
+                    RT-PCR Test and self-isolate immediately{% elif prediction.disease_type == 'lung_cancer' %}Get Chest
+                    X-Ray and CT Scan done urgently (Rs.500-5000){% elif prediction.disease_type == 'alzheimers'
+                    %}Schedule a Neurological Assessment this week{% elif prediction.disease_type == 'pneumonia' %}Get
+                    Chest X-Ray done today (Rs.500-1500){% elif prediction.disease_type == 'tuberculosis' %}Get Sputum
+                    Test and Chest X-Ray today (Rs.200-500){% elif prediction.disease_type == 'melanoma' %}See a
+                    Dermatologist for skin biopsy this week{% else %}Visit your nearest hospital immediately{% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-number orange">2</div>
+            <div class="step-content">
+                <h4>Download This Report for Your Doctor</h4>
+                <p>Click Download PDF Report below. Show this to your doctor — it contains your symptom analysis.</p>
+            </div>
+        </div>
+        <div class="step-item">
+            <div class="step-number blue">3</div>
+            <div class="step-content">
+                <h4>Don't Panic — Early Detection Saves Lives</h4>
+                <p>This is a screening result, NOT a diagnosis. Many conditions are fully treatable when caught early.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- MODEL INFO -->
+    <div class="meaning-card slide-up">
+        <h3>About This Analysis</h3>
+        <div class="meaning-item blue">
+            <span class="meaning-icon">📊</span>
+            <div class="meaning-text">
+                <h4>{{ prediction.model_name or 'Random Forest AI Model' }}</h4>
+                <p>Analyzed {{ prediction.get_input_features()|length }} health factors. Model accuracy: {{
+                    "%.1f"|format(prediction.model_accuracy) }}%. This is a pre-screening tool, not a medical diagnosis.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-buttons">
+        <a href="{{ url_for('reports.generate_report', prediction_id=prediction.id) }}"
+            class="action-btn primary">Download PDF Report</a>
+        <a href="{{ url_for('main.dashboard') }}" class="action-btn secondary">Back to Dashboard</a>
+        <a href="{{ url_for('predictions.history') }}" class="action-btn secondary">View All Results</a>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="disclaimer">
+        <p><strong>Medical Disclaimer:</strong> This result is generated by an AI-based pre-screening system. It is
+            <strong>NOT a medical diagnosis</strong>. Our system analyzes your symptoms to estimate risk — only a
+            qualified doctor can provide a definitive diagnosis. Always consult a healthcare professional before making
+            medical decisions.</p>
+    </div>
+</div>
+{% endblock %}
