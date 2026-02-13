@@ -261,18 +261,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 This platform is for educational and research purposes only. Predictions should **NOT** be considered as medical diagnoses. Always consult with qualified healthcare professionals for proper medical advice and treatment.
 
-## 👥 Development Team
-
-This project was developed as a collaborative effort by a dedicated team of students:
-
-- **Team Lead & ML Engineer** - Machine learning model development and optimization
-- **Backend Developer** - Flask application architecture and API development  
-- **Frontend Developer** - UI/UX design and responsive web interface
-- **Database Designer** - Database schema and data management
-- **Documentation Lead** - Project documentation and testing
-
-> **Academic Project** - Developed as part of academic curriculum to demonstrate the integration of AI, Data Science, and Web Technologies in healthcare.
-
 ## 🙏 Acknowledgments
 
 - **Kaggle** - For providing authentic medical datasets used in model training
@@ -280,16 +268,8 @@ This project was developed as a collaborative effort by a dedicated team of stud
 - **Flask Framework Contributors** - For the excellent web framework
 - **Chart.js Team** - For powerful data visualization tools
 - **ReportLab** - For PDF generation capabilities
-- **Our Project Guide** - For invaluable mentorship and guidance throughout development
-- **Academic Institution** - For providing resources and support
-
-## 📞 Support
-
-For issues, questions, or suggestions:
-- 📝 Create an issue in this repository
-- 💬 Contact: [Your institution email or team contact]
-- 📚 Documentation: Check `/viva_qa/README.md` for common Q&A
 
 ---
 
 **Built with ❤️ using Flask, Machine Learning, and Modern Web Technologies**
+
